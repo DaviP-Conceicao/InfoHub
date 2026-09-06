@@ -58,6 +58,40 @@ export default async function ContentPage({
             {content.content}
           </div>
         </div>
+
+        {content.sources.length > 0 && (
+          <section className="mt-12 border-t border-zinc-200 pt-8">
+            <h2 className="text-xl font-semibold tracking-tight">
+              Fontes
+            </h2>
+
+            <ul className="mt-5 space-y-4">
+              {content.sources.map((source) => (
+                <li
+                  key={source.id}
+                  className="rounded-lg border border-zinc-200 bg-white p-4"
+                >
+                  <p className="font-medium text-zinc-900">
+                    {source.name}
+                  </p>
+
+                  <p className="mt-1 text-sm text-zinc-500">
+                    Tipo: {source.source_type}
+                  </p>
+
+                  <a
+                    href={source.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-2 block break-all text-sm text-zinc-600 underline hover:text-zinc-950"
+                  >
+                    {source.url}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
       </article>
 
       <footer className="border-t border-zinc-200 bg-white">

@@ -1,5 +1,6 @@
 import { ResultSetHeader, RowDataPacket } from "mysql2";
 import { db, getDbConnection } from "./db";
+import { getSourcesByContentId, type Source } from "./sources";
 
 export type Content = RowDataPacket & {
   id: number;
@@ -51,9 +52,13 @@ export async function getPublishedContents(): Promise<Content[]> {
   return rows;
 }
 
+export type ContentWithSources = Content & {
+  sources: Source[];
+};
+
 export async function getPublishedContentBySlug(
   slug: string
-): Promise<Content[]> {
+): Promise<ContentWithSources[]> {
   const [rows] = await db.query<Content[]>(
     `
     SELECT
@@ -75,7 +80,19 @@ export async function getPublishedContentBySlug(
     [slug]
   );
 
-  return rows;
+  if (rows.length === 0) {
+    return [];
+  }
+
+  const content = rows[0];
+  const sources = await getSourcesByContentId(content.id);
+
+  return [
+    {
+      ...content,
+      sources,
+    },
+  ];
 }
 
 export async function createContent(
