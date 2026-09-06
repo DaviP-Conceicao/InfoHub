@@ -74,10 +74,28 @@ export async function POST(request: Request) {
       );
     }
 
+    if (title.trim().length > 200) {
+      return NextResponse.json(
+        {
+          error: "title deve possuir no máximo 200 caracteres.",
+        },
+        { status: 400 }
+      );
+    }
+
     if (typeof slug !== "string" || slug.trim() === "") {
       return NextResponse.json(
         {
           error: "slug é obrigatório.",
+        },
+        { status: 400 }
+      );
+    }
+
+    if (slug.trim().length > 220) {
+      return NextResponse.json(
+        {
+          error: "slug deve possuir no máximo 220 caracteres.",
         },
         { status: 400 }
       );
@@ -100,6 +118,18 @@ export async function POST(request: Request) {
       return NextResponse.json(
         {
           error: "summary deve ser uma string ou null.",
+        },
+        { status: 400 }
+      );
+    }
+
+    if (
+      typeof summary === "string" &&
+      summary.trim().length > 500
+    ) {
+      return NextResponse.json(
+        {
+          error: "summary deve possuir no máximo 500 caracteres.",
         },
         { status: 400 }
       );
@@ -154,6 +184,51 @@ export async function POST(request: Request) {
         );
       }
 
+      if (source.name.trim().length > 200) {
+        return NextResponse.json(
+          {
+            error: "O name da fonte deve possuir no máximo 200 caracteres.",
+          },
+          { status: 400 }
+        );
+      }
+
+      const normalizedUrl = source.url.trim();
+
+      if (normalizedUrl.length > 2048) {
+        return NextResponse.json(
+          {
+            error: "A url da fonte deve possuir no máximo 2048 caracteres.",
+          },
+          { status: 400 }
+        );
+      }
+
+      let parsedUrl: URL;
+
+      try {
+        parsedUrl = new URL(normalizedUrl);
+      } catch {
+        return NextResponse.json(
+          {
+            error: "A url da fonte deve ser uma URL válida.",
+          },
+          { status: 400 }
+        );
+      }
+
+      if (
+        parsedUrl.protocol !== "http:" &&
+        parsedUrl.protocol !== "https:"
+      ) {
+        return NextResponse.json(
+          {
+            error: "A url da fonte deve utilizar http ou https.",
+          },
+          { status: 400 }
+        );
+      }
+
       if (
         source.sourceType !== undefined &&
         typeof source.sourceType !== "string"
@@ -161,6 +236,18 @@ export async function POST(request: Request) {
         return NextResponse.json(
           {
             error: "sourceType deve ser uma string.",
+          },
+          { status: 400 }
+        );
+      }
+
+      const normalizedSourceType =
+        source.sourceType?.trim() || "other";
+
+      if (normalizedSourceType.length > 50) {
+        return NextResponse.json(
+          {
+            error: "sourceType deve possuir no máximo 50 caracteres.",
           },
           { status: 400 }
         );
@@ -179,10 +266,22 @@ export async function POST(request: Request) {
         );
       }
 
+      if (
+        typeof source.verifiedAt === "string" &&
+        !/^\d{4}-\d{2}-\d{2}$/.test(source.verifiedAt)
+      ) {
+        return NextResponse.json(
+          {
+            error: "verifiedAt deve estar no formato YYYY-MM-DD.",
+          },
+          { status: 400 }
+        );
+      }
+
       normalizedSources.push({
         name: source.name.trim(),
-        url: source.url.trim(),
-        sourceType: source.sourceType?.trim() || "other",
+        url: normalizedUrl,
+        sourceType: normalizedSourceType,
         verifiedAt: source.verifiedAt ?? null,
       });
     }
