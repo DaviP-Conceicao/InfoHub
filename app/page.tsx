@@ -1,27 +1,8 @@
-const categories = [
-  {
-    name: "Datas e Calendário",
-    description: "Feriados, datas comemorativas e informações sobre datas.",
-  },
-  {
-    name: "Matemática e Conversões",
-    description: "Cálculos, porcentagens, unidades e conversões.",
-  },
-  {
-    name: "Tecnologia e Programação",
-    description: "Programação, internet, sistemas e referências técnicas.",
-  },
-  {
-    name: "Países e Geografia",
-    description: "Países, regiões, territórios e informações geográficas.",
-  },
-  {
-    name: "Ferramentas Práticas",
-    description: "Informações úteis para tarefas do dia a dia.",
-  },
-];
+import { getCategories } from "@/lib/categories";
 
-export default function Home() {
+export default async function Home() {
+  const categories = await getCategories();
+
   return (
     <main className="min-h-screen bg-zinc-50 text-zinc-950">
       <header className="border-b border-zinc-200 bg-white">
@@ -34,6 +15,7 @@ export default function Home() {
             <a href="#categorias" className="hover:text-zinc-950">
               Categorias
             </a>
+
             <a href="/api/v1/contents" className="hover:text-zinc-950">
               API
             </a>
@@ -79,6 +61,7 @@ export default function Home() {
       <section id="categorias" className="mx-auto max-w-6xl px-6 py-16">
         <div className="mb-8">
           <h2 className="text-2xl font-bold">Categorias</h2>
+
           <p className="mt-2 text-zinc-600">
             Explore os principais grupos de informação do InfoHub.
           </p>
@@ -87,7 +70,7 @@ export default function Home() {
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {categories.map((category) => (
             <article
-              key={category.name}
+              key={category.id}
               className="rounded-xl border border-zinc-200 bg-white p-6 transition-shadow hover:shadow-sm"
             >
               <h3 className="font-semibold">{category.name}</h3>
@@ -130,7 +113,7 @@ export default function Home() {
         <div className="mx-auto max-w-6xl px-6 py-8 text-sm text-zinc-500">
           InfoHub — informação estruturada e acessível.
         </div>
-      </footer>
+        </footer>
     </main>
   );
 }
