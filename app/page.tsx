@@ -1,69 +1,136 @@
-import Image from "next/image";
+const categories = [
+  {
+    name: "Datas e Calendário",
+    description: "Feriados, datas comemorativas e informações sobre datas.",
+  },
+  {
+    name: "Matemática e Conversões",
+    description: "Cálculos, porcentagens, unidades e conversões.",
+  },
+  {
+    name: "Tecnologia e Programação",
+    description: "Programação, internet, sistemas e referências técnicas.",
+  },
+  {
+    name: "Países e Geografia",
+    description: "Países, regiões, territórios e informações geográficas.",
+  },
+  {
+    name: "Ferramentas Práticas",
+    description: "Informações úteis para tarefas do dia a dia.",
+  },
+];
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <main className="min-h-screen bg-zinc-50 text-zinc-950">
+      <header className="border-b border-zinc-200 bg-white">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
+          <a href="/" className="text-xl font-bold tracking-tight">
+            InfoHub
+          </a>
+
+          <nav className="flex gap-6 text-sm text-zinc-600">
+            <a href="#categorias" className="hover:text-zinc-950">
+              Categorias
+            </a>
+            <a href="/api/v1/contents" className="hover:text-zinc-950">
+              API
+            </a>
+          </nav>
+        </div>
+      </header>
+
+      <section className="border-b border-zinc-200 bg-white">
+        <div className="mx-auto max-w-6xl px-6 py-20">
+          <div className="max-w-3xl">
+            <p className="mb-4 text-sm font-medium text-zinc-500">
+              Informação estruturada e acessível
+            </p>
+
+            <h1 className="text-4xl font-bold tracking-tight sm:text-6xl">
+              Informação útil para consultar, entender e reutilizar.
+            </h1>
+
+            <p className="mt-6 max-w-2xl text-lg leading-8 text-zinc-600">
+              O InfoHub organiza informações práticas em um formato simples
+              para pessoas, desenvolvedores e sistemas de inteligência
+              artificial.
+            </p>
+
+            <div className="mt-8 flex max-w-2xl">
+              <input
+                type="search"
+                placeholder="O que você está procurando?"
+                className="h-12 w-full rounded-l-lg border border-zinc-300 bg-white px-4 outline-none focus:border-zinc-500"
+              />
+
+              <button
+                type="button"
+                className="h-12 rounded-r-lg bg-zinc-950 px-6 font-medium text-white"
+              >
+                Buscar
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="categorias" className="mx-auto max-w-6xl px-6 py-16">
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold">Categorias</h2>
+          <p className="mt-2 text-zinc-600">
+            Explore os principais grupos de informação do InfoHub.
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {categories.map((category) => (
+            <article
+              key={category.name}
+              className="rounded-xl border border-zinc-200 bg-white p-6 transition-shadow hover:shadow-sm"
+            >
+              <h3 className="font-semibold">{category.name}</h3>
+
+              <p className="mt-3 text-sm leading-6 text-zinc-600">
+                {category.description}
+              </p>
+
+              <span className="mt-5 inline-block text-sm font-medium">
+                Explorar →
+              </span>
+            </article>
+          ))}
         </div>
-      </main>
-    </div>
+      </section>
+
+      <section className="border-t border-zinc-200 bg-white">
+        <div className="mx-auto max-w-6xl px-6 py-12">
+          <h2 className="text-2xl font-bold">Conteúdos</h2>
+
+          <div className="mt-6 rounded-xl border border-zinc-200 p-6">
+            <h3 className="font-semibold">HTTP 404</h3>
+
+            <p className="mt-2 text-sm leading-6 text-zinc-600">
+              O código de status HTTP 404 indica que o servidor não encontrou
+              o recurso solicitado.
+            </p>
+
+            <a
+              href="/api/v1/contents/http-404"
+              className="mt-4 inline-block text-sm font-medium underline"
+            >
+              Ver conteúdo
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <footer className="border-t border-zinc-200">
+        <div className="mx-auto max-w-6xl px-6 py-8 text-sm text-zinc-500">
+          InfoHub — informação estruturada e acessível.
+        </div>
+      </footer>
+    </main>
   );
 }
