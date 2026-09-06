@@ -1,7 +1,8 @@
 import {
-  createContent,
+  createContentWithSources,
   getPublishedContents,
   type CreateContentInput,
+  type CreateContentSourceInput,
 } from "@/lib/contents";
 import { NextResponse } from "next/server";
 
@@ -48,6 +49,7 @@ export async function POST(request: Request) {
       summary,
       content,
       data,
+      sources,
     } = body;
 
     if (
@@ -103,6 +105,88 @@ export async function POST(request: Request) {
       );
     }
 
+    if (sources !== undefined && !Array.isArray(sources)) {
+      return NextResponse.json(
+        {
+          error: "sources deve ser uma lista.",
+        },
+        { status: 400 }
+      );
+    }
+
+    const normalizedSources: CreateContentSourceInput[] = [];
+
+    for (const source of sources ?? []) {
+      if (
+        !source ||
+        typeof source !== "object" ||
+        Array.isArray(source)
+      ) {
+        return NextResponse.json(
+          {
+            error: "Cada item de sources deve ser um objeto.",
+          },
+          { status: 400 }
+        );
+      }
+
+      if (
+        typeof source.name !== "string" ||
+        source.name.trim() === ""
+      ) {
+        return NextResponse.json(
+          {
+            error: "Cada fonte deve possuir um name válido.",
+          },
+          { status: 400 }
+        );
+      }
+
+      if (
+        typeof source.url !== "string" ||
+        source.url.trim() === ""
+      ) {
+        return NextResponse.json(
+          {
+            error: "Cada fonte deve possuir uma url válida.",
+          },
+          { status: 400 }
+        );
+      }
+
+      if (
+        source.sourceType !== undefined &&
+        typeof source.sourceType !== "string"
+      ) {
+        return NextResponse.json(
+          {
+            error: "sourceType deve ser uma string.",
+          },
+          { status: 400 }
+        );
+      }
+
+      if (
+        source.verifiedAt !== undefined &&
+        source.verifiedAt !== null &&
+        typeof source.verifiedAt !== "string"
+      ) {
+        return NextResponse.json(
+          {
+            error: "verifiedAt deve ser uma string ou null.",
+          },
+          { status: 400 }
+        );
+      }
+
+      normalizedSources.push({
+        name: source.name.trim(),
+        url: source.url.trim(),
+        sourceType: source.sourceType?.trim() || "other",
+        verifiedAt: source.verifiedAt ?? null,
+      });
+    }
+
     const input: CreateContentInput = {
       categoryId,
       title: title.trim(),
@@ -113,13 +197,17 @@ export async function POST(request: Request) {
       status: "draft",
     };
 
-    const id = await createContent(input);
+    const id = await createContentWithSources(
+      input,
+      normalizedSources
+    );
 
     return NextResponse.json(
       {
         data: {
           id,
           status: "draft",
+          sources: normalizedSources.length,
         },
       },
       { status: 201 }
