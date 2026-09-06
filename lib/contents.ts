@@ -1,7 +1,20 @@
+import { RowDataPacket } from "mysql2";
 import { db } from "./db";
 
-export async function getPublishedContents() {
-  const [rows] = await db.query(`
+export type Content = RowDataPacket & {
+  id: number;
+  title: string;
+  slug: string;
+  summary: string | null;
+  content?: string;
+  data: unknown;
+  category: string;
+  category_slug: string;
+};
+
+export async function getPublishedContents(): Promise<Content[]> {
+  const [rows] = await db.query<Content[]>(
+    `
     SELECT
       c.id,
       c.title,
@@ -15,13 +28,16 @@ export async function getPublishedContents() {
       ON cat.id = c.category_id
     WHERE c.status = 'published'
     ORDER BY c.id DESC
-  `);
+    `
+  );
 
   return rows;
 }
 
-export async function getPublishedContentBySlug(slug: string) {
-  const [rows] = await db.query(
+export async function getPublishedContentBySlug(
+  slug: string
+): Promise<Content[]> {
+  const [rows] = await db.query<Content[]>(
     `
     SELECT
       c.id,

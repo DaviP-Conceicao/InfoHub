@@ -1,7 +1,11 @@
 import { getCategories } from "@/lib/categories";
+import { getPublishedContents } from "@/lib/contents";
 
 export default async function Home() {
-  const categories = await getCategories();
+  const [categories, contents] = await Promise.all([
+    getCategories(),
+    getPublishedContents(),
+  ]);
 
   return (
     <main className="min-h-screen bg-zinc-50 text-zinc-950">
@@ -14,6 +18,10 @@ export default async function Home() {
           <nav className="flex gap-6 text-sm text-zinc-600">
             <a href="#categorias" className="hover:text-zinc-950">
               Categorias
+            </a>
+
+            <a href="#conteudos" className="hover:text-zinc-950">
+              Conteúdos
             </a>
 
             <a href="/api/v1/contents" className="hover:text-zinc-950">
@@ -87,25 +95,56 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="border-t border-zinc-200 bg-white">
+      <section
+        id="conteudos"
+        className="border-t border-zinc-200 bg-white"
+      >
         <div className="mx-auto max-w-6xl px-6 py-12">
-          <h2 className="text-2xl font-bold">Conteúdos</h2>
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold">Conteúdos</h2>
 
-          <div className="mt-6 rounded-xl border border-zinc-200 p-6">
-            <h3 className="font-semibold">HTTP 404</h3>
-
-            <p className="mt-2 text-sm leading-6 text-zinc-600">
-              O código de status HTTP 404 indica que o servidor não encontrou
-              o recurso solicitado.
+            <p className="mt-2 text-zinc-600">
+              Consulte os conteúdos publicados no InfoHub.
             </p>
-
-            <a
-              href="/api/v1/contents/http-404"
-              className="mt-4 inline-block text-sm font-medium underline"
-            >
-              Ver conteúdo
-            </a>
           </div>
+
+          {contents.length === 0 ? (
+            <div className="rounded-xl border border-zinc-200 p-6 text-sm text-zinc-600">
+              Nenhum conteúdo publicado no momento.
+            </div>
+          ) : (
+            <div className="grid gap-5 sm:grid-cols-2">
+              {contents.map((content) => (
+                <article
+                  key={content.id}
+                  className="rounded-xl border border-zinc-200 p-6 transition-shadow hover:shadow-sm"
+                >
+                  <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">
+                    {content.category}
+                  </p>
+
+                  <h3 className="mt-2 text-lg font-semibold">
+                    {content.title}
+                  </h3>
+
+                  {content.summary && (
+                    <p className="mt-2 text-sm leading-6 text-zinc-600">
+                      {content.summary}
+                    </p>
+                  )}
+
+                  <a
+                    href={`/api/v1/contents/${encodeURIComponent(
+                      content.slug
+                    )}`}
+                    className="mt-4 inline-block text-sm font-medium underline"
+                  >
+                    Ver conteúdo
+                  </a>
+                </article>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
@@ -113,7 +152,7 @@ export default async function Home() {
         <div className="mx-auto max-w-6xl px-6 py-8 text-sm text-zinc-500">
           InfoHub — informação estruturada e acessível.
         </div>
-        </footer>
+      </footer>
     </main>
   );
 }
