@@ -11,3 +11,7 @@ export const db = mysql.createPool({
   connectionLimit: 5,
   queueLimit: 0,
 });
+
+export async function getDbConnection() {
+  return db.getConnection();
+}
