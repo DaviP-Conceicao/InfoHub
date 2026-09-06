@@ -1,20 +1,12 @@
 import { NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { getCategories } from "@/lib/categories";
 
 export async function GET() {
   try {
-    const [rows] = await db.query(`
-      SELECT
-        id,
-        name,
-        slug,
-        description
-      FROM categories
-      ORDER BY id
-    `);
+    const categories = await getCategories();
 
     return NextResponse.json({
-      data: rows,
+      data: categories,
     });
   } catch (error) {
     console.error("Categories API error:", error);
