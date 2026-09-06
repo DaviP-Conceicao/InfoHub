@@ -19,3 +19,28 @@ export async function getPublishedContents() {
 
   return rows;
 }
+
+export async function getPublishedContentBySlug(slug: string) {
+  const [rows] = await db.query(
+    `
+    SELECT
+      c.id,
+      c.title,
+      c.slug,
+      c.summary,
+      c.content,
+      c.data,
+      cat.name AS category,
+      cat.slug AS category_slug
+    FROM contents c
+    INNER JOIN categories cat
+      ON cat.id = c.category_id
+    WHERE c.slug = ?
+      AND c.status = 'published'
+    LIMIT 1
+    `,
+    [slug]
+  );
+
+  return rows;
+}
