@@ -1,5 +1,5 @@
 import { ResultSetHeader, RowDataPacket } from "mysql2";
-import { db } from "./db";
+import { db, getDbConnection } from "./db";
 
 export type Content = RowDataPacket & {
   id: number;
@@ -20,6 +20,13 @@ export type CreateContentInput = {
   content: string;
   data?: unknown;
   status?: "draft" | "published" | "archived";
+};
+
+export type CreateContentSourceInput = {
+  name: string;
+  url: string;
+  sourceType?: string;
+  verifiedAt?: string | null;
 };
 
 export async function getPublishedContents(): Promise<Content[]> {
@@ -99,4 +106,72 @@ export async function createContent(
   );
 
   return result.insertId;
+}
+
+export async function createContentWithSources(
+  contentInput: CreateContentInput,
+  sources: CreateContentSourceInput[]
+): Promise<number> {
+  const connection = await getDbConnection();
+
+  try {
+    await connection.beginTransaction();
+
+    const [contentResult] = await connection.execute<ResultSetHeader>(
+      `
+      INSERT INTO contents (
+        category_id,
+        title,
+        slug,
+        summary,
+        content,
+        data,
+        status
+      )
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+      `,
+      [
+        contentInput.categoryId,
+        contentInput.title,
+        contentInput.slug,
+        contentInput.summary ?? null,
+        contentInput.content,
+        contentInput.data ? JSON.stringify(contentInput.data) : null,
+        contentInput.status ?? "draft",
+      ]
+    );
+
+    const contentId = contentResult.insertId;
+
+    for (const source of sources) {
+      await connection.execute(
+        `
+        INSERT INTO sources (
+          content_id,
+          name,
+          url,
+          source_type,
+          verified_at
+        )
+        VALUES (?, ?, ?, ?, ?)
+        `,
+        [
+          contentId,
+          source.name,
+          source.url,
+          source.sourceType ?? "other",
+          source.verifiedAt ?? null,
+        ]
+      );
+    }
+
+    await connection.commit();
+
+    return contentId;
+  } catch (error) {
+    await connection.rollback();
+    throw error;
+  } finally {
+    connection.release();
+  }
 }
