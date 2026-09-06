@@ -1,4 +1,4 @@
-import { RowDataPacket } from "mysql2";
+import { ResultSetHeader, RowDataPacket } from "mysql2";
 import { db } from "./db";
 
 export type Content = RowDataPacket & {
@@ -10,6 +10,16 @@ export type Content = RowDataPacket & {
   data: unknown;
   category: string;
   category_slug: string;
+};
+
+export type CreateContentInput = {
+  categoryId: number;
+  title: string;
+  slug: string;
+  summary?: string | null;
+  content: string;
+  data?: unknown;
+  status?: "draft" | "published" | "archived";
 };
 
 export async function getPublishedContents(): Promise<Content[]> {
@@ -59,4 +69,34 @@ export async function getPublishedContentBySlug(
   );
 
   return rows;
+}
+
+export async function createContent(
+  input: CreateContentInput
+): Promise<number> {
+  const [result] = await db.execute<ResultSetHeader>(
+    `
+    INSERT INTO contents (
+      category_id,
+      title,
+      slug,
+      summary,
+      content,
+      data,
+      status
+    )
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+    `,
+    [
+      input.categoryId,
+      input.title,
+      input.slug,
+      input.summary ?? null,
+      input.content,
+      input.data ? JSON.stringify(input.data) : null,
+      input.status ?? "draft",
+    ]
+  );
+
+  return result.insertId;
 }
