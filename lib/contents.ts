@@ -192,3 +192,26 @@ export async function createContentWithSources(
     connection.release();
   }
 }
+
+
+export async function publishContentBySlug(slug: string): Promise<boolean> {
+  const db = await getDbConnection();
+
+  try {
+    const [result] = await db.execute(
+      `
+        UPDATE contents
+        SET status = 'published'
+        WHERE slug = ?
+          AND status = 'draft'
+      `,
+      [slug]
+    );
+
+    const affectedRows = (result as { affectedRows?: number }).affectedRows ?? 0;
+
+    return affectedRows === 1;
+  } finally {
+    db.release();
+  }
+}
