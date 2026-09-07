@@ -5,6 +5,7 @@ import {
   type CreateContentSourceInput,
 } from "@/lib/contents";
 import { getCategories } from "@/lib/categories";
+import { timingSafeEqual } from "crypto";
 import { NextResponse } from "next/server";
 
 export async function GET() {
@@ -28,6 +29,38 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    const configuredApiKey = process.env.INGESTION_API_KEY;
+    const providedApiKey = request.headers.get("authorization");
+
+    if (!configuredApiKey) {
+      console.error("INGESTION_API_KEY não configurada.");
+
+      return NextResponse.json(
+        {
+          error: "Endpoint de ingestão não configurado.",
+        },
+        { status: 503 }
+      );
+    }
+
+    const expectedAuthorization = `Bearer ${configuredApiKey}`;
+
+    const providedBuffer = Buffer.from(providedApiKey ?? "");
+    const expectedBuffer = Buffer.from(expectedAuthorization);
+
+    const validAuthorization =
+      providedBuffer.length === expectedBuffer.length &&
+      timingSafeEqual(providedBuffer, expectedBuffer);
+
+    if (!validAuthorization) {
+      return NextResponse.json(
+        {
+          error: "Não autorizado.",
+        },
+        { status: 401 }
+      );
+    }
+
     const body = await request.json();
 
     if (

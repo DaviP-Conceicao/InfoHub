@@ -1,5 +1,13 @@
 const BASE_URL = "http://localhost:3000/api/v1/contents";
 
+const API_KEY = process.env.INGESTION_API_KEY;
+
+if (!API_KEY) {
+  throw new Error(
+    "INGESTION_API_KEY não definida. Carregue .env.local antes de executar os testes."
+  );
+}
+
 type TestCase = {
   name: string;
   request: RequestInit;
@@ -36,6 +44,7 @@ function jsonRequest(body: unknown): RequestInit {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      Authorization: `Bearer ${API_KEY}`,
     },
     body: JSON.stringify(body),
   };
@@ -45,6 +54,24 @@ async function main() {
   const unique = Date.now();
 
   const tests: TestCase[] = [
+    {
+      name: "requisição sem autenticação",
+      request: {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          categoryId: 3,
+          title: `Teste sem autenticação ${unique}`,
+          slug: `teste-sem-autenticacao-${unique}`,
+          content: "Este conteúdo não deve ser criado.",
+        }),
+      },
+      expectedStatus: 401,
+      expectedError: "Não autorizado.",
+    },
+
     {
       name: "criação válida com fontes",
       request: jsonRequest({
