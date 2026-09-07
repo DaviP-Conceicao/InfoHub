@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { getCategories } from "@/lib/categories";
 import { getPublishedContents } from "@/lib/contents";
 
