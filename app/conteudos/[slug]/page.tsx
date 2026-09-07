@@ -1,11 +1,62 @@
-import { getPublishedContentBySlug } from "@/lib/contents";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { getPublishedContentBySlug } from "@/lib/contents";
 
 type ContentPageProps = {
   params: Promise<{
     slug: string;
   }>;
 };
+
+const SITE_URL = "https://infohub-production-78c5.up.railway.app";
+
+export async function generateMetadata({
+  params,
+}: ContentPageProps): Promise<Metadata> {
+  const { slug } = await params;
+
+  const contents = await getPublishedContentBySlug(slug);
+  const content = contents[0];
+
+  if (!content) {
+    return {
+      title: "Conteúdo não encontrado",
+      description: "O conteúdo solicitado não foi encontrado no InfoHub.",
+      robots: {
+        index: false,
+        follow: false,
+      },
+    };
+  }
+
+  const description =
+    content.summary?.trim() ||
+    `Consulte informações sobre ${content.title} no InfoHub.`;
+
+  const canonicalUrl = `${SITE_URL}/conteudos/${encodeURIComponent(
+    content.slug
+  )}`;
+
+  return {
+    title: content.title,
+    description,
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      type: "article",
+      url: canonicalUrl,
+      title: content.title,
+      description,
+      siteName: "InfoHub",
+      locale: "pt_BR",
+    },
+    robots: {
+      index: true,
+      follow: true,
+    },
+  };
+}
 
 export default async function ContentPage({
   params,
