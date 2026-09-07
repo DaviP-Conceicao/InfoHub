@@ -4,6 +4,7 @@ import {
   type CreateContentInput,
   type CreateContentSourceInput,
 } from "@/lib/contents";
+import { getCategories } from "@/lib/categories";
 import { NextResponse } from "next/server";
 
 export async function GET() {
@@ -60,6 +61,20 @@ export async function POST(request: Request) {
       return NextResponse.json(
         {
           error: "categoryId deve ser um número inteiro positivo.",
+        },
+        { status: 400 }
+      );
+    }
+
+    const categories = await getCategories();
+    const categoryExists = categories.some(
+      (category) => category.id === categoryId
+    );
+
+    if (!categoryExists) {
+      return NextResponse.json(
+        {
+          error: "categoryId não corresponde a uma categoria existente.",
         },
         { status: 400 }
       );
