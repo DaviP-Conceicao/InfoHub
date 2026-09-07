@@ -1,3 +1,4 @@
+export {};
 const BASE_URL = "http://localhost:3000/api/v1/contents";
 
 const API_KEY = process.env.INGESTION_API_KEY;
