@@ -2,6 +2,9 @@ import type { MetadataRoute } from "next";
 
 import { getPublishedContents } from "@/lib/contents";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 const baseUrl =
   process.env.NEXT_PUBLIC_SITE_URL ??
   "https://infohub-production-78c5.up.railway.app";
