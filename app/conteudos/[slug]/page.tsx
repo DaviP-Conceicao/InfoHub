@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getPublishedContentBySlug } from "@/lib/contents";
@@ -74,16 +75,16 @@ export default async function ContentPage({
     <main className="min-h-screen bg-zinc-50 text-zinc-950">
       <header className="border-b border-zinc-200 bg-white">
         <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-5">
-          <a href="/" className="text-xl font-bold tracking-tight">
+          <Link href="/" className="text-xl font-bold tracking-tight">
             InfoHub
-          </a>
+          </Link>
 
-          <a
+          <Link
             href="/#conteudos"
             className="text-sm text-zinc-600 hover:text-zinc-950"
           >
             Voltar aos conteúdos
-          </a>
+          </Link>
         </div>
       </header>
 

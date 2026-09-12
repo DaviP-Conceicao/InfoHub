@@ -1,3 +1,4 @@
+import Link from "next/link";
 export const dynamic = "force-dynamic";
 
 import { getCategories } from "@/lib/categories";
@@ -13,9 +14,9 @@ export default async function Home() {
     <main className="min-h-screen bg-zinc-50 text-zinc-950">
       <header className="border-b border-zinc-200 bg-white">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
-          <a href="/" className="text-xl font-bold tracking-tight">
+          <Link href="/" className="text-xl font-bold tracking-tight">
             InfoHub
-          </a>
+          </Link>
 
           <nav className="flex gap-6 text-sm text-zinc-600">
             <a href="#categorias" className="hover:text-zinc-950">
@@ -26,9 +27,9 @@ export default async function Home() {
               Conteúdos
             </a>
 
-            <a href="/api/v1/contents" className="hover:text-zinc-950">
+            <Link href="/api/v1/contents" className="hover:text-zinc-950">
               API
-            </a>
+            </Link>
           </nav>
         </div>
       </header>
