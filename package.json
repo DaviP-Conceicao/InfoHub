@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "ingest:test": "tsx scripts/ingestion/run.ts"
   },
   "dependencies": {
     "mysql2": "^3.24.3",
