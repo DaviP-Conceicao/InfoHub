@@ -90,9 +90,12 @@ export default async function Home() {
                 {category.description}
               </p>
 
-              <span className="mt-5 inline-block text-sm font-medium">
+              <Link
+                href={`/categorias/${encodeURIComponent(category.slug)}`}
+                className="mt-5 inline-block text-sm font-medium underline"
+              >
                 Explorar →
-              </span>
+              </Link>
             </article>
           ))}
         </div>
