@@ -1,54 +1,34 @@
-import { mkdir, writeFile } from "node:fs/promises";
-import { join } from "node:path";
 import type {
+  QualityReport,
   QualityResult,
-  PipelineResult,
 } from "../types";
-import { pipelineConfig } from "../config";
 
-export async function storeQualityReport(
+export function buildQualityReport(
   batchId: string,
+  fetched: number,
+  normalized: number,
   result: QualityResult
-): Promise<string> {
-  const directory = join(
-    pipelineConfig.silverDir,
-    batchId
-  );
+): QualityReport {
+  const issuesByCode: Record<string, number> = {};
 
-  await mkdir(directory, {
-    recursive: true,
-  });
+  for (const rejected of result.rejected) {
+    for (const issue of rejected.issues) {
+      issuesByCode[issue.code] =
+        (issuesByCode[issue.code] ?? 0) + 1;
+    }
+  }
 
-  const duplicates = result.rejected.filter(
-    ({ issues }) =>
-      issues.some(
-        (issue) => issue.code === "DUPLICATE"
-      )
-  ).length;
+  const duplicates =
+    issuesByCode.DUPLICATE ?? 0;
 
-  const report: PipelineResult = {
+  return {
     batchId,
-    fetched:
-      result.valid.length +
-      result.rejected.length,
-    normalized:
-      result.valid.length +
-      result.rejected.length,
+    processedAt: new Date().toISOString(),
+    fetched,
+    normalized,
     valid: result.valid.length,
     rejected: result.rejected.length,
     duplicates,
+    issuesByCode,
   };
-
-  const filePath = join(
-    directory,
-    "quality-report.json"
-  );
-
-  await writeFile(
-    filePath,
-    JSON.stringify(report, null, 2),
-    "utf8"
-  );
-
-  return filePath;
 }

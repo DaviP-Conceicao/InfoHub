@@ -24,9 +24,7 @@ function hasValidDate(
     return true;
   }
 
-  const timestamp = Date.parse(value);
-
-  return !Number.isNaN(timestamp);
+  return !Number.isNaN(Date.parse(value));
 }
 
 export function validateItem(
@@ -50,7 +48,10 @@ export function validateItem(
     });
   }
 
-  if (!item.sourceUrl || !isHttpUrl(item.sourceUrl)) {
+  if (
+    !item.sourceUrl ||
+    !isHttpUrl(item.sourceUrl)
+  ) {
     issues.push({
       code: "INVALID_SOURCE",
       message: "URL da fonte inválida.",
@@ -73,10 +74,8 @@ export function runQualityChecks(
   items: SilverItem[]
 ): QualityResult {
   const valid: SilverItem[] = [];
-  const rejected: Array<{
-    item: SilverItem;
-    issues: QualityIssue[];
-  }> = [];
+
+  const rejected: QualityResult["rejected"] = [];
 
   const fingerprints = new Set<string>();
 
@@ -95,12 +94,14 @@ export function runQualityChecks(
       rejected.push({
         item,
         issues,
+        rejectedAt: new Date().toISOString(),
       });
 
       continue;
     }
 
     fingerprints.add(item.fingerprint);
+
     valid.push(item);
   }
 

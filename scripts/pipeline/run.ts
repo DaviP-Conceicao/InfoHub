@@ -1,30 +1,38 @@
 import { randomUUID } from "node:crypto";
+
 import {
   fetchConfiguredRssSources,
 } from "./sources/rss";
-import { storeBronze } from "./bronze/store";
+
 import {
   normalizeItems,
 } from "./silver/normalize";
-import { storeSilver } from "./silver/store";
+
 import {
   runQualityChecks,
 } from "./quality/check";
+
 import {
-  storeQualityReport,
+  buildQualityReport,
 } from "./quality/report";
+
+import {
+  localPipelineStorage,
+} from "./storage/local";
+
 import { pipelineConfig } from "./config";
 
 async function main() {
-  const batchId = new Date()
-    .toISOString()
-    .replace(/[:.]/g, "-") +
+  const batchId =
+    new Date()
+      .toISOString()
+      .replace(/[:.]/g, "-") +
     "-" +
     randomUUID().slice(0, 8);
 
   console.log("");
   console.log("========================================");
-  console.log("INFOHUB — PIPELINE V2");
+  console.log("INFOHUB — PIPELINE V2.1");
   console.log("========================================");
   console.log(`Batch: ${batchId}`);
   console.log(`Dry-run: ${pipelineConfig.dryRun}`);
@@ -43,13 +51,15 @@ async function main() {
     totalFetched += items.length;
 
     const bronzePath =
-      await storeBronze(
+      await localPipelineStorage.storeBronze(
         batchId,
         source,
         items
       );
 
-    console.log(`Bronze: ${bronzePath}`);
+    console.log(
+      `Bronze: ${bronzePath}`
+    );
 
     const normalized =
       normalizeItems(items);
@@ -60,9 +70,10 @@ async function main() {
       runQualityChecks(normalized);
 
     totalValid += quality.valid.length;
-    totalRejected += quality.rejected.length;
+    totalRejected +=
+      quality.rejected.length;
 
-    totalDuplicates +=
+    const duplicateCount =
       quality.rejected.filter(
         ({ issues }) =>
           issues.some(
@@ -71,25 +82,56 @@ async function main() {
           )
       ).length;
 
+    totalDuplicates += duplicateCount;
+
     const silverPath =
-      await storeSilver(
+      await localPipelineStorage.storeSilver(
         batchId,
         quality.valid
       );
 
-    const reportPath =
-      await storeQualityReport(
+    const quarantinePath =
+      await localPipelineStorage.storeQuarantine(
         batchId,
+        quality.rejected
+      );
+
+    const report =
+      buildQualityReport(
+        batchId,
+        items.length,
+        normalized.length,
         quality
       );
 
-    console.log(`Silver: ${silverPath}`);
-    console.log(`Quality: ${reportPath}`);
+    const reportPath =
+      await localPipelineStorage.storeQualityReport(
+        batchId,
+        report
+      );
+
+    console.log(
+      `Silver: ${silverPath}`
+    );
+
+    console.log(
+      `Quarantine: ${quarantinePath}`
+    );
+
+    console.log(
+      `Quality: ${reportPath}`
+    );
+
     console.log(
       `  Válidos: ${quality.valid.length}`
     );
+
     console.log(
       `  Rejeitados: ${quality.rejected.length}`
+    );
+
+    console.log(
+      `  Duplicados: ${duplicateCount}`
     );
   }
 
@@ -110,7 +152,7 @@ async function main() {
     );
   } else {
     console.log(
-      "Modo de execução real: a publicação ainda não faz parte deste estágio."
+      "Modo real: publicação ainda não faz parte deste estágio."
     );
   }
 

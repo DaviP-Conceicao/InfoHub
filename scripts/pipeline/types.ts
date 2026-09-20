@@ -48,12 +48,26 @@ export type QualityIssue = {
   item: SilverItem;
 };
 
+export type RejectedItem = {
+  item: SilverItem;
+  issues: QualityIssue[];
+  rejectedAt: string;
+};
+
 export type QualityResult = {
   valid: SilverItem[];
-  rejected: Array<{
-    item: SilverItem;
-    issues: QualityIssue[];
-  }>;
+  rejected: RejectedItem[];
+};
+
+export type QualityReport = {
+  batchId: string;
+  processedAt: string;
+  fetched: number;
+  normalized: number;
+  valid: number;
+  rejected: number;
+  duplicates: number;
+  issuesByCode: Record<string, number>;
 };
 
 export type PipelineResult = {
@@ -63,4 +77,27 @@ export type PipelineResult = {
   valid: number;
   rejected: number;
   duplicates: number;
+};
+
+export type PipelineStorage = {
+  storeBronze(
+    batchId: string,
+    source: PipelineSource,
+    items: RawSourceItem[]
+  ): Promise<string>;
+
+  storeSilver(
+    batchId: string,
+    items: SilverItem[]
+  ): Promise<string>;
+
+  storeQuarantine(
+    batchId: string,
+    items: RejectedItem[]
+  ): Promise<string>;
+
+  storeQualityReport(
+    batchId: string,
+    report: QualityReport
+  ): Promise<string>;
 };
