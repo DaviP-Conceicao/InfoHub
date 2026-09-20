@@ -22,6 +22,11 @@ import {
 
 import { pipelineConfig } from "./config";
 
+import {
+  filterNewFingerprints,
+  markProcessed,
+} from "./dedup/store";
+
 async function main() {
   const batchId =
     new Date()
@@ -66,14 +71,32 @@ async function main() {
 
     totalNormalized += normalized.length;
 
+    const persistentDedup =
+      await filterNewFingerprints(
+        normalized.map(
+          (item) => item.fingerprint
+        )
+      );
+
+    const persistentDuplicateFingerprints =
+      persistentDedup.duplicates;
+
+    const candidates =
+      normalized.filter(
+        (item) =>
+          !persistentDuplicateFingerprints.has(
+            item.fingerprint
+          )
+      );
+
     const quality =
-      runQualityChecks(normalized);
+      runQualityChecks(candidates);
 
     totalValid += quality.valid.length;
     totalRejected +=
       quality.rejected.length;
 
-    const duplicateCount =
+    const batchDuplicateCount =
       quality.rejected.filter(
         ({ issues }) =>
           issues.some(
@@ -81,6 +104,10 @@ async function main() {
               issue.code === "DUPLICATE"
           )
       ).length;
+
+    const duplicateCount =
+      persistentDuplicateFingerprints.size +
+      batchDuplicateCount;
 
     totalDuplicates += duplicateCount;
 
@@ -109,6 +136,12 @@ async function main() {
         batchId,
         report
       );
+
+    await markProcessed(
+      quality.valid.map(
+        (item) => item.fingerprint
+      )
+    );
 
     console.log(
       `Silver: ${silverPath}`
