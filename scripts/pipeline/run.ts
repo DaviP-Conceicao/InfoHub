@@ -55,16 +55,18 @@ async function main() {
   for (const { source, items } of sources) {
     totalFetched += items.length;
 
-    const bronzePath =
-      await localPipelineStorage.storeBronze(
-        batchId,
-        source,
-        items
-      );
+    if (!pipelineConfig.dryRun) {
+      const bronzePath =
+        await localPipelineStorage.storeBronze(
+          batchId,
+          source,
+          items
+        );
 
-    console.log(
-      `Bronze: ${bronzePath}`
-    );
+      console.log(
+        `Bronze: ${bronzePath}`
+      );
+    }
 
     const normalized =
       normalizeItems(items);
@@ -111,18 +113,6 @@ async function main() {
 
     totalDuplicates += duplicateCount;
 
-    const silverPath =
-      await localPipelineStorage.storeSilver(
-        batchId,
-        quality.valid
-      );
-
-    const quarantinePath =
-      await localPipelineStorage.storeQuarantine(
-        batchId,
-        quality.rejected
-      );
-
     const report =
       buildQualityReport(
         batchId,
@@ -131,29 +121,43 @@ async function main() {
         quality
       );
 
-    const reportPath =
-      await localPipelineStorage.storeQualityReport(
-        batchId,
-        report
+    if (!pipelineConfig.dryRun) {
+      const silverPath =
+        await localPipelineStorage.storeSilver(
+          batchId,
+          quality.valid
+        );
+
+      const quarantinePath =
+        await localPipelineStorage.storeQuarantine(
+          batchId,
+          quality.rejected
+        );
+
+      const reportPath =
+        await localPipelineStorage.storeQualityReport(
+          batchId,
+          report
+        );
+
+      await markProcessed(
+        quality.valid.map(
+          (item) => item.fingerprint
+        )
       );
 
-    await markProcessed(
-      quality.valid.map(
-        (item) => item.fingerprint
-      )
-    );
+      console.log(
+        `Silver: ${silverPath}`
+      );
 
-    console.log(
-      `Silver: ${silverPath}`
-    );
+      console.log(
+        `Quarantine: ${quarantinePath}`
+      );
 
-    console.log(
-      `Quarantine: ${quarantinePath}`
-    );
-
-    console.log(
-      `Quality: ${reportPath}`
-    );
+      console.log(
+        `Quality: ${reportPath}`
+      );
+    }
 
     console.log(
       `  Válidos: ${quality.valid.length}`
