@@ -23,10 +23,15 @@ Relational storage for categories, contents, sources, tags, aliases,
 and content relationships.
 
 ### Ingestion pipeline
-External sources are collected and processed through staged data handling:
+External sources are currently collected and processed through staged local data
+handling:
 
 source -> Bronze -> normalization -> Silver -> quality -> quarantine /
-deduplication -> candidate -> API -> publication.
+deduplication -> local artifacts.
+
+Candidate generation, sending candidates to the API, and automated publication
+remain planned stages. The existing ingestion API creates drafts and the
+publication API is separately protected.
 
 ## Design principles
 

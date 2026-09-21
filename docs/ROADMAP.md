@@ -16,13 +16,14 @@
 - [x] Quality checks
 - [x] Quarantine
 - [x] Persistent deduplication
-- [ ] Agent-ready repository documentation
+- [x] Agent-ready repository documentation
 
 ## Stage 2 — Agent-ready development
 
-- [ ] Stable development instructions
-- [ ] Repository skills
+- [x] Stable development instructions
+- [x] Repository skills
 - [ ] Security review workflow
+- [x] Local deterministic verification commands
 - [ ] Automated verification workflow
 - [ ] Agent-specific development workflow
 - [ ] Safe branch/PR workflow

@@ -7,6 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "test": "npm run pipeline:dry-run:test",
+    "check": "npm run lint && npm run typecheck && npm test",
     "ingest:test": "tsx scripts/ingestion/run.ts",
     "pipeline:test": "tsx scripts/pipeline/run.ts",
     "pipeline:dry-run:test": "tsx --test scripts/pipeline/run.test.ts"
