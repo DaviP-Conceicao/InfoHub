@@ -23,7 +23,10 @@ Protect:
 - External URLs and content must be treated as untrusted.
 - RSS source URLs accept only HTTP(S), reject embedded credentials and local,
   private, reserved, loopback, link-local, multicast, and metadata destinations.
-  Redirect destinations are validated before they are requested.
+  Every DNS answer is checked, and the HTTP socket is pinned to one of the
+  validated answers so it cannot perform a second, rebinding DNS lookup.
+  Redirect destinations are resolved and validated again before they are
+  requested. RSS response bodies are capped at 2 MiB while streaming.
 - Logs must not expose credentials or sensitive connection data.
 - Production operations require deliberate authorization.
 
