@@ -1,127 +1,67 @@
-# InfoHub
+<div align="center">
 
-InfoHub é uma plataforma pública para coletar, normalizar, validar, organizar e
-publicar conteúdo estruturado.
+# 📰 InfoHub
 
-O projeto foi desenvolvido como um estudo de caso de engenharia de software
-assistida por IA, envolvendo arquitetura web, APIs, banco de dados, pipeline de
-conteúdo externo, segurança, testes, CI/CD e documentação.
+![Status](https://img.shields.io/badge/status-portfolio%20(congelado)-0077B6?style=for-the-badge)
+![Next.js](https://img.shields.io/badge/Next.js%2016-black?style=for-the-badge&logo=next.js&logoColor=white)
+![React](https://img.shields.io/badge/React%2019-61DAFB?style=for-the-badge&logo=react&logoColor=black)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
+![MySQL](https://img.shields.io/badge/MySQL%2FMariaDB-4479A1?style=for-the-badge&logo=mysql&logoColor=white)
+![Railway](https://img.shields.io/badge/Railway-0B0D0E?style=for-the-badge&logo=railway&logoColor=white)
+![CI](https://img.shields.io/badge/CI-GitHub%20Actions-2088FF?style=for-the-badge&logo=githubactions&logoColor=white)
 
-O desenvolvimento ativo foi encerrado e o projeto encontra-se congelado como
-projeto de portfólio.
+Plataforma pública para **coletar, normalizar, validar, organizar e publicar** conteúdo estruturado.
 
-## Estado do projeto
+</div>
 
-**Status: congelado como projeto de portfólio.**
+> 📌 **Status:** desenvolvimento encerrado. Projeto congelado como portfólio — não é uma plataforma comercial em operação. Detalhes em [`docs/PROJECT-STATUS.md`](docs/PROJECT-STATUS.md).
 
-A versão final preserva a fundação técnica construída durante o desenvolvimento,
-mas não representa uma plataforma comercial em operação contínua.
+## 🚫 Fora do escopo final
 
-Não fazem parte da versão final:
+| Não incluído nesta versão |
+|---|
+| Agente operacional autônomo |
+| Publicação automática completa |
+| Monetização, afiliados e revenue tracking |
+| Notificações financeiras |
+| Analytics próprio |
+| Desenvolvimento autônomo contínuo |
 
-- agente operacional autônomo;
-- publicação automática completa;
-- monetização;
-- tracking próprio de afiliados;
-- revenue tracking;
-- notificações financeiras;
-- analytics próprio;
-- desenvolvimento autônomo contínuo.
+## 🔄 Pipeline de ingestão
 
-Veja o estado detalhado em [docs/PROJECT-STATUS.md](docs/PROJECT-STATUS.md).
-
-## Stack
-
-- Next.js 16
-- React 19
-- TypeScript
-- MySQL/MariaDB
-- Git/GitHub
-- Railway
-- GitHub Actions
-
-## Arquitetura resumida
-
-A aplicação possui páginas públicas, APIs versionadas e acesso server-side ao
-banco de dados.
-
-A ingestão de fontes externas foi organizada em estágios explícitos:
-
-```text
-fonte RSS
-    ↓
-Bronze
-    ↓
-normalização
-    ↓
-Silver
-    ↓
-quality
-    ↓
-quarantine
-    ↓
-deduplicação
+```mermaid
+flowchart LR
+    A[Fonte RSS] --> B[Bronze]
+    B --> C[Normalização]
+    C --> D[Silver]
+    D --> E[Quality]
+    E --> F[Quarantine]
+    F --> G[Deduplicação]
 ```
 
-Bronze, Silver, quarantine e relatórios de quality são tratados como artefatos
-locais.
+- Bronze, Silver, quarantine e relatórios de *quality* são artefatos locais.
+- A API de ingestão cria rascunhos; a API de publicação usa uma chave separada.
+- O pipeline **não publica automaticamente**.
 
-A API de ingestão existente cria rascunhos e possui autenticação própria. A API
-de publicação utiliza uma chave separada.
+## ✅ Funcionalidades
 
-O pipeline RSS não realiza publicação automática.
+| 🌐 Web & API | 🗄️ Dados & Pipeline |
+|---|---|
+| Páginas públicas de conteúdo | Banco de dados relacional (categorias, fontes, tags, aliases) |
+| Páginas por categoria | Pipeline RSS (Bronze → Silver) |
+| Busca | Quality gate |
+| SEO básico, sitemap e robots | Quarantine |
+| API versionada (consulta pública) | Deduplicação persistente |
+| API protegida de ingestão | Dry-run |
+| API protegida de publicação | Testes automatizados + CI |
 
-## Funcionalidades implementadas
+## 🔐 Segurança
 
-- páginas públicas de conteúdo;
-- páginas por categoria;
-- busca;
-- SEO básico;
-- sitemap;
-- robots;
-- API versionada;
-- consulta pública de conteúdos;
-- API protegida de ingestão;
-- API protegida de publicação;
-- banco de dados relacional;
-- categorias;
-- fontes;
-- tags;
-- aliases;
-- pipeline RSS;
-- Bronze e Silver;
-- quality gate;
-- quarantine;
-- deduplicação persistente;
-- dry-run;
-- testes automatizados do pipeline;
-- CI com GitHub Actions.
+SQL parametrizado · autenticação por chave · proteção contra SSRF e DNS rebinding · redirects revalidados · limite de 2 MiB por resposta RSS · quarantine · dry-run.
 
-## Segurança
+📄 Detalhes completos em [`docs/SECURITY.md`](docs/SECURITY.md).
 
-O projeto passou por revisões específicas de segurança.
-
-Entre os controles implementados estão:
-
-- consultas SQL parametrizadas;
-- validação de entradas;
-- autenticação nas operações protegidas;
-- separação entre chaves de ingestão e publicação;
-- tratamento de conteúdo externo como não confiável;
-- proteção contra SSRF;
-- validação de destinos DNS;
-- proteção contra DNS rebinding;
-- validação de redirects;
-- bloqueio de destinos locais e privados;
-- limite de 2 MiB para respostas RSS durante o streaming;
-- quarantine para dados rejeitados;
-- dry-run antes de efeitos persistentes.
-
-A segurança do projeto não é apresentada como absoluta.
-
-Mais detalhes estão em [docs/SECURITY.md](docs/SECURITY.md).
-
-## Estrutura principal
+## 🗂️ Estrutura
 
 ```text
 app/                    Páginas públicas e rotas de API do Next.js
@@ -134,169 +74,84 @@ scripts/tests/          Testes manuais de integração
 .agents/skills/         Instruções locais para desenvolvimento
 ```
 
-## Desenvolvimento local
+## 🚀 Rodando localmente
 
-Instale as dependências a partir do lockfile:
-
-```bash
-npm ci
-```
-
-Copie `.env.example` para `.env.local` e preencha somente valores do seu
-ambiente local.
-
-Nunca versione `.env.local`.
-
-Prepare um banco local compatível com:
-
-```text
-database/001_initial_schema.sql
-```
-
-Para iniciar a aplicação:
+<details>
+<summary>Clique para expandir</summary>
 
 ```bash
-npm run dev
+npm ci                       # instalar dependências
+cp .env.example .env.local   # configurar variáveis locais
+npm run dev                  # iniciar em http://localhost:3000
 ```
 
-Por padrão, a aplicação fica disponível em:
+Banco local compatível com `database/001_initial_schema.sql`. Nunca versione `.env.local`.
 
-```text
-http://localhost:3000
-```
+</details>
 
-## Validações
+## 🧪 Validação
 
-Os principais comandos de validação são:
+| Comando | O que faz |
+|---|---|
+| `npm run lint` | Lint |
+| `npm run typecheck` | Checagem de tipos |
+| `npm test` | Testes |
+| `npm run check` | lint → typecheck → testes do pipeline |
+| `npm run build` | Build de produção |
 
-```bash
-npm run lint
-npm run typecheck
-npm test
-npm run check
-npm run build
-git diff --check
-```
+O CI (GitHub Actions) roda `npm ci`, `npm run check` e `npm run build`. Testes automatizados não usam Railway, banco de produção ou credenciais reais.
 
-O comando `npm run check` executa:
-
-```text
-lint
-  ↓
-typecheck
-  ↓
-testes do pipeline
-```
-
-O CI do GitHub Actions executa `npm ci`, `npm run check` e `npm run build`.
-
-Os testes automatizados não utilizam Railway, banco de produção ou credenciais
-reais.
-
-## Pipeline
-
-Para executar manualmente o pipeline:
+## ⚙️ Pipeline manual
 
 ```bash
 npm run pipeline:test
 ```
 
-O dry-run é o comportamento padrão:
+| Modo | Comportamento |
+|---|---|
+| `PIPELINE_DRY_RUN=true` (padrão) | Coleta e valida sem gravar nada |
+| `PIPELINE_DRY_RUN=false` | Grava artefatos e fingerprints localmente |
 
-```text
-PIPELINE_DRY_RUN=true
-```
+A publicação continua fora do pipeline em qualquer modo.
 
-Nesse modo, o pipeline pode coletar e validar fontes, mas não grava os
-artefatos persistentes do pipeline nem envia conteúdo para a API.
+## 🔑 Variáveis de ambiente
 
-Com:
+| Grupo | Uso |
+|---|---|
+| `DATABASE_*` | Conexão com o banco |
+| `INGESTION_API_KEY` | Autenticação da API de ingestão |
+| `PUBLISH_API_KEY` | Autenticação da API de publicação |
+| `INGESTION_*` | Configuração do coletor |
+| `INFOHUB_API_URL` / `INFOHUB_BASE_URL` | URLs da aplicação |
+| `PIPELINE_*` | Configuração do pipeline |
 
-```text
-PIPELINE_DRY_RUN=false
-```
+Nomes completos em `.env.example`; valores reais nunca vão para o Git.
 
-os artefatos e fingerprints válidos podem ser gravados nos diretórios locais
-configurados.
+## 🏭 Produção
 
-Mesmo nesse modo, a publicação não faz parte do pipeline RSS.
+> ⚠️ Scripts de teste, migrações, ingestão real e publicação **não devem rodar contra produção sem autorização humana explícita**.
 
-## Variáveis de ambiente
+Hospedagem original: Railway (app + banco). O encerramento da infraestrutura ocorre só após backups e verificações.
 
-Os nomes das variáveis utilizadas pelo projeto estão documentados em
-`.env.example`.
+## 📚 Documentação
 
-As principais categorias são:
+| Documento | Conteúdo |
+|---|---|
+| [PROJECT-STATUS.md](docs/PROJECT-STATUS.md) | Status final |
+| [DEVELOPMENT-JOURNAL.md](docs/DEVELOPMENT-JOURNAL.md) | Diário de desenvolvimento |
+| [DECISIONS.md](docs/DECISIONS.md) | Decisões técnicas |
+| [ARCHITECTURE.md](docs/ARCHITECTURE.md) | Arquitetura |
+| [SECURITY.md](docs/SECURITY.md) | Segurança |
+| [ROADMAP.md](docs/ROADMAP.md) | Roadmap e escopo encerrado |
 
-- `DATABASE_*`;
-- `INGESTION_API_KEY`;
-- `PUBLISH_API_KEY`;
-- `INGESTION_*`;
-- `INFOHUB_API_URL`;
-- `PIPELINE_*`;
-- `INFOHUB_BASE_URL`.
+## 🤖 Desenvolvimento assistido por IA
 
-Os valores reais das credenciais devem permanecer fora do Git.
+IA foi usada para implementação, análise, testes, documentação, revisão e investigação — sempre com **validação humana**, revisão de diff, testes e checkpoints Git antes de mudanças sensíveis.
 
-## Produção
+---
 
-Durante o desenvolvimento foi utilizado Railway para hospedagem da aplicação e
-do banco de dados.
+<div align="center">
 
-Produção deve ser tratada separadamente do ambiente local.
+**InfoHub** — estudo de caso de engenharia de software assistida por IA, congelado como projeto de portfólio.
 
-Scripts de teste, migrações, ingestão real e publicação não devem ser executados
-contra produção sem autorização humana explícita.
-
-O encerramento da infraestrutura de produção faz parte das etapas finais de
-preservação do projeto e deve ocorrer somente após a realização dos backups e
-verificações necessários.
-
-## Documentação
-
-Os principais documentos do projeto são:
-
-- [Status Final](docs/PROJECT-STATUS.md)
-- [Diário de Desenvolvimento](docs/DEVELOPMENT-JOURNAL.md)
-- [Decisões Técnicas](docs/DECISIONS.md)
-- [Arquitetura](docs/ARCHITECTURE.md)
-- [Segurança](docs/SECURITY.md)
-- [Roadmap e escopo encerrado](docs/ROADMAP.md)
-
-## Desenvolvimento assistido por IA
-
-Ferramentas de inteligência artificial foram utilizadas durante o
-desenvolvimento para auxiliar em:
-
-- implementação;
-- análise;
-- testes;
-- documentação;
-- revisão;
-- investigação de problemas;
-- segurança.
-
-As alterações foram submetidas a validação humana, testes, revisão de diff e
-checkpoints Git.
-
-O desenvolvimento assistido por IA não substituiu a validação humana para
-operações sensíveis.
-
-## Resultado
-
-O InfoHub representa um estudo de caso de desenvolvimento de software
-assistido por IA envolvendo:
-
-- arquitetura web;
-- APIs;
-- banco de dados;
-- processamento de conteúdo externo;
-- pipelines;
-- segurança;
-- testes;
-- CI/CD;
-- documentação;
-- tomada de decisões técnicas.
-
-O projeto está congelado nessa versão para preservação e apresentação como
-portfólio.
+</div>
