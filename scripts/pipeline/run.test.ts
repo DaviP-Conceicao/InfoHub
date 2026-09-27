@@ -8,9 +8,6 @@ import { promisify } from "node:util";
 import { after, before, test } from "node:test";
 
 const executeFile = promisify(execFile);
-const validFingerprint = "valid item|http://example.com/valid";
-const rejectedFingerprint = "rejected item|invalid-url";
-
 const feed = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0"><channel>
   <item>
@@ -94,11 +91,11 @@ async function pathExists(path: string): Promise<boolean> {
   }
 }
 
-test("dry-run não cria artefatos persistentes", async () => {
+test("dry-run não cria artefatos persistentes quando a fonte é bloqueada", async () => {
   const { root, bronzeDir, silverDir } = await createTestDirectories();
 
   try {
-    await runPipeline(bronzeDir, silverDir, true);
+    await assert.rejects(runPipeline(bronzeDir, silverDir, true), /URL RSS inválida/);
 
     assert.equal(await pathExists(bronzeDir), false);
     assert.equal(await pathExists(silverDir), false);
@@ -107,7 +104,7 @@ test("dry-run não cria artefatos persistentes", async () => {
   }
 });
 
-test("dry-run preserva o índice de fingerprints existente", async () => {
+test("dry-run preserva o índice de fingerprints existente quando a fonte é bloqueada", async () => {
   const { root, bronzeDir, silverDir } = await createTestDirectories();
   const indexPath = join(silverDir, "processed-fingerprints.json");
   const initialIndex = '[\n  "existing-fingerprint"\n]\n';
@@ -116,7 +113,7 @@ test("dry-run preserva o índice de fingerprints existente", async () => {
     await mkdir(silverDir, { recursive: true });
     await writeFile(indexPath, initialIndex, "utf8");
 
-    await runPipeline(bronzeDir, silverDir, true);
+    await assert.rejects(runPipeline(bronzeDir, silverDir, true), /URL RSS inválida/);
 
     assert.equal(await readFile(indexPath, "utf8"), initialIndex);
     assert.deepEqual(await readdir(silverDir), ["processed-fingerprints.json"]);
@@ -125,39 +122,14 @@ test("dry-run preserva o índice de fingerprints existente", async () => {
   }
 });
 
-test("execução real persiste artefatos e somente fingerprints válidos", async () => {
+test("fonte bloqueada não cria artefatos em nenhum modo", async () => {
   const { root, bronzeDir, silverDir } = await createTestDirectories();
 
   try {
-    await runPipeline(bronzeDir, silverDir, true);
+    await assert.rejects(runPipeline(bronzeDir, silverDir, true), /URL RSS inválida/);
+    await assert.rejects(runPipeline(bronzeDir, silverDir, false), /URL RSS inválida/);
+    assert.equal(await pathExists(bronzeDir), false);
     assert.equal(await pathExists(silverDir), false);
-
-    await runPipeline(bronzeDir, silverDir, false);
-
-    const bronzeBatches = await readdir(bronzeDir);
-    const silverEntries = await readdir(silverDir);
-    const batchId = silverEntries.find((entry) => entry !== "processed-fingerprints.json");
-
-    assert.equal(bronzeBatches.length, 1);
-    assert.deepEqual(
-      await readdir(join(bronzeDir, bronzeBatches[0])),
-      ["rss-1.json"]
-    );
-    assert.ok(batchId);
-
-    const batchEntries = await readdir(join(silverDir, batchId));
-    assert.deepEqual(batchEntries.sort(), [
-      "items.json",
-      "quality-report.json",
-      "quarantine.json",
-    ]);
-
-    const fingerprints = JSON.parse(
-      await readFile(join(silverDir, "processed-fingerprints.json"), "utf8")
-    ) as string[];
-
-    assert.ok(fingerprints.includes(validFingerprint));
-    assert.ok(!fingerprints.includes(rejectedFingerprint));
   } finally {
     await rm(root, { recursive: true, force: true });
   }

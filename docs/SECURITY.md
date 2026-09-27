@@ -21,6 +21,9 @@ Protect:
 - Authentication must be checked at protected API boundaries.
 - Authorization must be explicit for sensitive operations.
 - External URLs and content must be treated as untrusted.
+- RSS source URLs accept only HTTP(S), reject embedded credentials and local,
+  private, reserved, loopback, link-local, multicast, and metadata destinations.
+  Redirect destinations are validated before they are requested.
 - Logs must not expose credentials or sensitive connection data.
 - Production operations require deliberate authorization.
 
