@@ -138,3 +138,34 @@ tomada de decisões técnicas.
 3cacf8e fix: harden RSS fetching against DNS rebinding
 
 O repositório encontra-se com a árvore de trabalho limpa no momento do encerramento desta fase.
+
+
+## Encerramento da infraestrutura de produção
+
+Em 27/09/2026, o projeto foi congelado como case técnico de portfólio.
+
+A infraestrutura de produção no Railway não faz mais parte do escopo operacional
+do projeto. O código-fonte, histórico Git, documentação, schema do banco e
+backup local dos dados foram preservados antes do encerramento da infraestrutura.
+
+O projeto não será mantido como serviço online, produto comercial ou agente
+autônomo. O objetivo final é preservar e demonstrar as decisões de arquitetura,
+engenharia, segurança, testes, pipeline de dados e desenvolvimento assistido
+por IA realizados durante sua construção.
+
+### Estado final
+
+- Código-fonte: preservado no GitHub.
+- Histórico Git: preservado.
+- Documentação técnica: preservada.
+- Schema SQL: preservado.
+- Backup do banco de produção: preservado localmente fora do repositório.
+- CI e validações: preservados no repositório.
+- Aplicação Railway: destinada ao encerramento.
+- Banco Railway: destinado ao encerramento.
+- Monetização: não implementada.
+- Agente autônomo: não implementado.
+- Operação contínua: encerrada.
+
+A partir deste ponto, novas alterações devem ser tratadas como manutenção
+excepcional do case de portfólio, e não como retomada da operação de produção.

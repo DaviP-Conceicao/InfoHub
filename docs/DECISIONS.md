@@ -543,3 +543,38 @@ O InfoHub encontra-se congelado como projeto de portfólio.
 O branch main está sincronizado com origin/main.
 
 A partir deste ponto, alterações devem ser consideradas manutenção excepcional ou correção documental, e não continuação do desenvolvimento planejado originalmente.
+
+
+
+## Decisão: congelamento definitivo como case de portfólio
+
+**Data:** 2026-09-27
+
+### Decisão
+
+O InfoHub será encerrado como infraestrutura operacional e preservado como case
+técnico de portfólio.
+
+### Motivo
+
+O projeto atingiu o objetivo técnico de demonstrar uma aplicação web com API,
+persistência relacional, pipeline de ingestão, validação, quarantine,
+deduplicação, controles de segurança, testes automatizados, CI e documentação
+de engenharia.
+
+A continuidade como produto, sistema monetizado ou agente autônomo não faz mais
+parte do escopo definido para o projeto.
+
+### Consequências
+
+- O GitHub permanece como fonte permanente do código e histórico.
+- A documentação permanece como registro técnico do desenvolvimento.
+- O banco de produção é preservado por meio de backup antes do encerramento.
+- A infraestrutura Railway deixa de ser necessária após o encerramento.
+- Não serão adicionados mecanismos de monetização ou operação autônoma.
+- Eventuais alterações futuras terão caráter demonstrativo ou de manutenção do
+  case de portfólio.
+
+### Estado da decisão
+
+**Adotada.**
