@@ -1,57 +1,210 @@
 # InfoHub Security
 
-## Security objectives
+## Estado
 
-Protect:
+O InfoHub está congelado como projeto de portfólio.
 
-- credentials and API keys;
-- production database;
-- user-facing application;
-- ingestion endpoints;
-- publication workflow;
-- external integrations;
-- financial and monetization configuration.
+Este documento registra os principais controles de segurança implementados
+durante o desenvolvimento.
 
-## Required practices
+A segurança do projeto não é apresentada como absoluta. Os controles descritos
+representam as ameaças analisadas e as medidas implementadas.
 
-- Secrets remain outside Git.
-- `.env.local` and local secret backups must never be committed.
-- External input must be validated.
-- SQL must use parameterized queries.
-- Authentication must be checked at protected API boundaries.
-- Authorization must be explicit for sensitive operations.
-- External URLs and content must be treated as untrusted.
-- RSS source URLs accept only HTTP(S), reject embedded credentials and local,
-  private, reserved, loopback, link-local, multicast, and metadata destinations.
-  Every DNS answer is checked, and the HTTP socket is pinned to one of the
-  validated answers so it cannot perform a second, rebinding DNS lookup.
-  Redirect destinations are resolved and validated again before they are
-  requested. RSS response bodies are capped at 2 MiB while streaming.
-- Logs must not expose credentials or sensitive connection data.
-- Production operations require deliberate authorization.
+## Objetivos
 
-## Agent safety
+Proteger:
 
-Agents must not:
+- credenciais;
+- chaves de API;
+- banco de dados;
+- aplicação pública;
+- endpoints de ingestão;
+- fluxo de publicação;
+- integrações externas;
+- dados processados pelo pipeline.
 
-- print secrets;
-- commit secrets;
-- disable security checks merely to make tests pass;
-- delete production data to resolve a development problem;
-- silently change authentication or authorization behavior;
-- claim absolute security.
+Funcionalidades financeiras e de monetização não fazem parte da versão final do
+projeto.
 
-## Incident handling
+## Segredos
 
-If a credential may have been exposed:
+Segredos não devem ser armazenados no Git.
 
-1. stop propagating it;
-2. avoid repeating the secret;
-3. identify the affected credential;
-4. rotate it;
-5. review where it was exposed;
-6. remove accidental tracked copies if necessary;
-7. verify the repository and deployment configuration.
+Arquivos locais de ambiente, incluindo:
 
-Security findings should be documented and fixed before unrelated feature work
-continues when the finding creates meaningful risk.
+```text
+.env.local
+.env.local.*
+```
+
+devem permanecer fora do repositório.
+
+O projeto mantém `.env.example` apenas como referência para os nomes das
+variáveis.
+
+## Banco de dados
+
+O acesso ao banco utiliza consultas parametrizadas.
+
+Entradas externas não devem ser concatenadas diretamente em consultas SQL.
+
+## Autenticação
+
+As operações protegidas utilizam autenticação por chave.
+
+A ingestão e a publicação utilizam chaves separadas:
+
+```text
+INGESTION_API_KEY
+PUBLISH_API_KEY
+```
+
+A separação reduz o escopo de uma credencial comprometida.
+
+## Conteúdo externo
+
+Fontes RSS e qualquer conteúdo externo são tratados como não confiáveis.
+
+O sistema não deve assumir que uma fonte externa é segura somente porque ela
+está previamente configurada.
+
+## Proteção contra SSRF
+
+As URLs utilizadas pelo coletor RSS são validadas antes de serem acessadas.
+
+São rejeitados:
+
+- esquemas diferentes de HTTP/HTTPS;
+- URLs com credenciais incorporadas;
+- loopback;
+- endereços privados;
+- endereços reservados;
+- link-local;
+- multicast;
+- destinos de metadata;
+- outros destinos considerados não permitidos pelo validador.
+
+## Validação DNS
+
+A resolução DNS é verificada antes da conexão.
+
+Todos os endereços retornados devem passar pela validação de segurança.
+
+O cliente HTTP utiliza um endereço previamente validado para impedir que uma
+segunda resolução possa substituir o destino validado.
+
+## DNS rebinding
+
+O projeto passou por uma revisão específica contra DNS rebinding.
+
+O controle implementado evita depender exclusivamente da primeira resolução DNS.
+
+O fluxo inclui:
+
+- resolução do hostname;
+- validação dos endereços retornados;
+- seleção de endereço permitido;
+- conexão utilizando o endereço validado;
+- preservação do hostname necessário para a requisição HTTP.
+
+## Redirects
+
+Redirects não são considerados confiáveis.
+
+O destino de cada redirect é resolvido e validado novamente antes de ser
+acessado.
+
+Isso impede que uma URL inicialmente permitida redirecione diretamente para um
+destino bloqueado sem nova validação.
+
+## Limite de resposta RSS
+
+Respostas RSS possuem limite de:
+
+**2 MiB**
+
+O limite é aplicado durante o streaming.
+
+O tamanho informado pelo servidor também é considerado quando disponível.
+
+## Quarantine
+
+Itens rejeitados pelo pipeline não são simplesmente tratados como conteúdo
+válido.
+
+A quarantine permite preservar dados rejeitados para investigação e diagnóstico.
+
+## Dry-run
+
+O pipeline utiliza dry-run como comportamento padrão.
+
+Isso permite validar o fluxo sem produzir efeitos persistentes inesperados.
+
+## Logs
+
+Logs não devem expor:
+
+- senhas;
+- chaves de API;
+- strings de conexão;
+- credenciais;
+- informações sensíveis desnecessárias.
+
+As fontes externas são identificadas de maneira que evite expor dados
+desnecessários, especialmente URLs completas quando isso não for necessário.
+
+## Produção
+
+Operações de produção exigem autorização humana.
+
+Não devem ser executados contra produção sem autorização:
+
+- testes;
+- scripts experimentais;
+- migrações;
+- ingestão real;
+- publicação;
+- alterações destrutivas.
+
+## Segurança no desenvolvimento assistido por IA
+
+Ferramentas de IA podem auxiliar na implementação e revisão, mas não devem ser
+tratadas como autoridade final para operações sensíveis.
+
+Durante o desenvolvimento foram utilizados:
+
+- revisão de diff;
+- testes;
+- checkpoints Git;
+- validação local;
+- revisão específica de segurança.
+
+Agentes e automações não devem:
+
+- imprimir segredos;
+- commitar segredos;
+- desabilitar controles de segurança para fazer testes passarem;
+- apagar dados de produção para resolver problemas de desenvolvimento;
+- alterar autenticação silenciosamente;
+- alterar autorização silenciosamente;
+- afirmar segurança absoluta.
+
+## Incidentes de credenciais
+
+Se uma credencial puder ter sido exposta:
+
+- interromper sua propagação;
+- não repetir o segredo;
+- identificar a credencial afetada;
+- realizar rotação;
+- revisar onde ocorreu a exposição;
+- remover cópias acidentais rastreadas pelo Git, quando necessário;
+- verificar o repositório e a configuração de implantação.
+
+## Estado de encerramento
+
+O projeto foi congelado como estudo de caso técnico.
+
+Os controles de segurança documentados representam o estado implementado na
+versão final e não devem ser interpretados como garantia de segurança absoluta
+ou como substituto de uma auditoria de segurança independente.
